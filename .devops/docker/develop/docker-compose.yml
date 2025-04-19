@@ -1,0 +1,42 @@
+# Ports se definen en override
+services:
+  rick-and-morty-api:
+    container_name: rick-and-morty-api
+    build:
+      context: ../../../
+      dockerfile: ./.devops/docker/develop/Dockerfile
+    volumes:
+      - ../../../:/var/www/app
+      - ~/storage_block/rick-and-morty-api/volumen_files:/var/www/volumen_files
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+
+# Nginx Service
+  rick-and-morty-api-nginx:
+    image: nginx:alpine
+    container_name: rick-and-morty-api-nginx
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ../../../:/var/www/app
+      - ./nginx/conf.d/:/etc/nginx/templates
+    environment:
+      NGINX_FASTCGI_PASS: "rick-and-morty-api:9000"
+
+# Servicio de Base de Datos PostgreSQL
+  db-postgres-rick-and-morty-api:
+    image: postgres:14
+    container_name: db-postgres-rick-and-morty-api
+    environment:
+      POSTGRES_PASSWORD: "shtwkj211283sss"
+      POSTGRES_USER: "user_api"
+      POSTGRES_DB: "fast-api"
+    volumes:
+      - ~/storage_block/commerce/postgres/data:/var/lib/postgresql/data
+    ports:
+      - 5434:5432
+
+#docker network create rick-and-morty-api-network
+networks:
+  default:
+    name: rick-and-morty-api-network
+    external: true

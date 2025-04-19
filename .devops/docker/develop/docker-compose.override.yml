@@ -1,0 +1,7 @@
+#Puerto_maquina:puerto_contenedor
+services:
+  rick-and-morty-api-nginx:
+    ports:
+      - "8082:80"
+
+
