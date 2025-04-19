@@ -79,6 +79,11 @@
         createApp({
             setup() {
                 const characters = ref([])
+                const paginate = reactive({
+                    currentPage: 1,
+                    limit: 16,
+                    total: 0,
+                })
 
                 const getCharacters = async () => {
                     try {
@@ -91,6 +96,18 @@
                         characters.value = data.results
                     } catch (err) {
                        console.error('Error al obtener personajes:', err)
+                    }
+                }
+
+                const nextPage = () => {
+                    paginate.currentPage++
+                    getCharacters()
+                }
+
+                const prevPage = () => {
+                    if (paginate.currentPage > 1) {
+                        paginate.currentPage--
+                        getCharacters()
                     }
                 }
 
