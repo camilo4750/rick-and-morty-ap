@@ -34,7 +34,8 @@
                             <p>Especie: @{{ character.species }}</p>
                         </div>
                         <button class="btn btn-sm btn-primary  mt-auto align-self-end" type="button"
-                            data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">
+                            @click="getCharacter(character.id)" data-bs-toggle="offcanvas"
+                            data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">
                             Ver mas detalles
                             <i class="fa-solid fa-eye ms-2"></i>
                         </button>
@@ -67,7 +68,54 @@
             </div>
         </div>
     </div>
-   
+    <div class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop"
+        aria-labelledby="staticBackdropLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="staticBackdropLabel">Detalles del pesonaje</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div v-if="character">
+                <div>
+                    <img :src="character.image" class="img-fluid w-100" :alt="character.name">
+                    <h2 class="my-2 text-center">@{{ character.name }}</h2>
+                </div>
+                <div class="">
+                    <table class="table table-striped table-hover">
+                        <tr>
+                            <th scope="row">Estado:</th>
+                            <td>@{{ character?.status }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Especie:</th>
+                            <td>@{{ character?.species }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">tipo:</th>
+                            <td>@{{ character?.type }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">genero:</th>
+                            <td>@{{ character?.gender }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">origen:</th>
+                            <td><a :href="character?.origin?.url ">@{{ character?.origin?.name }}</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">ubicación:</th>
+                            <td><a :href="character?.location?.url">@{{ character?.location?.name }}</a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div v-else class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection
@@ -84,15 +132,15 @@
                     limit: 16,
                     total: 0,
                 })
+                const character = ref(null)
 
                 const getCharacters = async () => {
                     try {
                         const response = await fetch(`https://rickandmortyapi.com/api/character?page=${paginate.currentPage}`)
                         if (!response.ok) {
-                            throw new Error('Network response was not ok')
+                            throw new Error('Fallo en la petición')
                         }
                         const data = await response.json()
-                        console.log(data)
                         characters.value = data.results
                     } catch (err) {
                        console.error('Error al obtener personajes:', err)
@@ -111,13 +159,30 @@
                     }
                 }
 
+                const getCharacter = async (id) => {
+                    try {
+                        const response = await fetch(`https://rickandmortyapi.com/api/character/${id}`)
+                        if (!response.ok) {
+                            throw new Error('Fallo en la petición')
+                        }
+                        const data = await response.json()
+                        character.value = data
+                    } catch (error) {
+                        console.error('Error al obtener personaje', error)
+                    }
+                }
+                
                 onMounted(() => {
                     getCharacters()
                 })
                 
-
                 return {
                     characters,
+                    getCharacter,
+                    character,
+                    nextPage,
+                    prevPage,
+                    paginate,
                 }
             }
         }).mount('#app')
