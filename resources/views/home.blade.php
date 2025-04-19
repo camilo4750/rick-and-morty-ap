@@ -42,21 +42,19 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-3">
+            <div class="mt-3 d-flex align-items-center justify-content-between">
+                <b>total de personajes: @{{ paginate.total }}</b>
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-end">
                         <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Previous">
+                            <button class="page-link" aria-label="Previous" @click="prevPage()">
                                 <span aria-hidden="true">&laquo;</span>
-                            </a>
+                            </button>
                         </li>
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
                         <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Next">
+                            <button class="page-link" aria-label="Next" @click="nextPage()">
                                 <span aria-hidden="true">&raquo;</span>
-                            </a>
+                            </button>
                         </li>
                     </ul>
                 </nav>
@@ -122,14 +120,14 @@
 
 @section('js')
 <script>
-    const { createApp, ref, reactive, onMounted } = Vue
+    const { createApp, ref, reactive, onMounted, computed } = Vue
 
         createApp({
             setup() {
                 const characters = ref([])
                 const paginate = reactive({
                     currentPage: 1,
-                    limit: 16,
+                    perPage: 20,
                     total: 0,
                 })
                 const character = ref(null)
@@ -142,6 +140,7 @@
                         }
                         const data = await response.json()
                         characters.value = data.results
+                        paginate.total = data.info.count
                     } catch (err) {
                        console.error('Error al obtener personajes:', err)
                     }
@@ -167,6 +166,7 @@
                         }
                         const data = await response.json()
                         character.value = data
+                     
                     } catch (error) {
                         console.error('Error al obtener personaje', error)
                     }
@@ -184,6 +184,7 @@
                     prevPage,
                     paginate,
                 }
+
             }
         }).mount('#app')
 </script>
