@@ -28,12 +28,12 @@ services:
     container_name: db-postgres-rick-and-morty-api
     environment:
       POSTGRES_PASSWORD: "shtwkj211283sss"
-      POSTGRES_USER: "user_api"
-      POSTGRES_DB: "fast-api"
+      POSTGRES_USER: "character_api"
+      POSTGRES_DB: "character-api"
     volumes:
-      - ~/storage_block/commerce/postgres/data:/var/lib/postgresql/data
+      - ~/storage_block/character/postgres/data:/var/lib/postgresql/data
     ports:
-      - 5434:5432
+      - 5435:5432
 
 #docker network create rick-and-morty-api-network
 networks:
