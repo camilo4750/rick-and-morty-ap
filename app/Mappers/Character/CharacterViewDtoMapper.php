@@ -14,7 +14,7 @@ class CharacterViewDtoMapper extends BaseMapper
 
     public function createFromDbRecords(object $dbRecord): CharacterViewDto
     {
-        $dto = new CharacterViewDto();
+        $dto = $this->getNewDto();
         $dto->id = $dbRecord->id;
         $dto->name = $dbRecord->name;
         $dto->status = $dbRecord->status;
@@ -29,10 +29,11 @@ class CharacterViewDtoMapper extends BaseMapper
         return $dto;
     }
 
-    public function createCollectionFromDbRecords(object $dbRecord)
+    public function createCollectionFromDbRecords(object $dbRecord): array
     {
         return $dbRecord->map(function ($character) {
             return $this->createFromDbRecords($character);
         })->all();
     }
 }
+
