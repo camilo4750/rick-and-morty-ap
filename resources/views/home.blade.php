@@ -18,12 +18,12 @@
     <div class="container">
         <div class="row" v-if="characters.length > 0">
             <div class="col-12 mt-3">
-                <h2 class="text-center">Personajes</h2>
+                <h2 class="text-center">@{{ isMyCharacters ? 'Mis Personajes' : 'Personajes'}}</h2>
             </div>
-            <div class="col-12">
+            <div class="col-12" v-if="!isMyCharacters">
                 <div class="d-flex justify-content-between align-items-center rounded-3 bg-light p-3 mt-3 shadow">
                     <p class="fw-semibold">Quieres obtener y modificar 100 personajes</p>
-                    <button class="btn btn-success" @click="getCharactersToStore()">Si, guardar</button>
+                    <button class="btn btn-success" @click="getOneHundredCharacters()">Si, guardar</button>
                 </div>
             </div>
             <div class="col-12 col-md-6 col-lg-4 col-xxl-3" v-for="character in characters" :key="character.id">
@@ -123,7 +123,13 @@
             </div>
         </div>
     </div>
-  
+    <div v-if="isLoading"
+        class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-25"
+        style="z-index: 1050;">
+        <div class="spinner-border text-info" style="width: 5rem; height: 5rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 </div>
 
 @endsection
@@ -141,9 +147,13 @@
                     total: 0,
                 })
                 const character = ref(null)
+                const isLoading = ref(false)
+                const isMyCharacters = ref(false) 
+
 
                 const getCharactersApi = async () => {
                     try {
+                        isMyCharacters.value = false
                         const response = await fetch(`https://rickandmortyapi.com/api/character?page=${paginate.currentPage}`)
                         if (!response.ok) {
                             throw new Error('Fallo en la petición')
@@ -174,9 +184,12 @@
                         const data = await response.json()
                         if(data.data.length === 0){
                             getCharactersApi()
+                            return
                         }
+                        
                         characters.value = data.data
                         paginate.total = data.data.length
+                        isMyCharacters.value = true
                     } catch (err) {
                        console.error('Error al obtener personajes:', err)
                     }
@@ -208,6 +221,62 @@
                         console.error('Error al obtener personaje', error)
                     }
                 }
+
+                const getOneHundredCharacters = async () => {
+                    isLoading.value = true
+                    const totalPagesToFetch = 5
+                    const promises = []
+
+                    for (let i = 1; i <= totalPagesToFetch; i++) {
+                        promises.push(fetch(`https://rickandmortyapi.com/api/character?page=${i}`))
+                    }
+                    
+                    const responses = await Promise.all(promises)
+                    const jsonResponses = await Promise.all(responses.map(res => res.json()))
+                    const allResults = jsonResponses
+                        .flatMap(r => r.results)
+                        .slice(0, 100)
+                        .map(({ episode, created, url, ...rest }) => rest);
+
+                    StoreCharacters(allResults)
+                }
+
+                const StoreCharacters = async (characters) => {
+                    try {
+                        const response = await fetch('{{route('Character.store')}}', {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            },
+                            body: JSON.stringify({
+                                characters: characters
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Fallo en la petición')
+                        }
+
+                        const data = await response.json()
+
+                        await getCharacters()
+
+                        Toastify({
+                            text: data.message,
+                            duration: 4000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#10b981",
+                            stopOnFocus: true,
+                        }).showToast()
+                    } catch (err) {
+                       console.error('Error al obtener personajes:', err)
+                    } finally {
+                        isLoading.value = false
+                    }
+                }
   
                 onMounted(() => {
                     getCharacters()
@@ -220,8 +289,10 @@
                     nextPage,
                     prevPage,
                     paginate,
+                    getOneHundredCharacters,
+                    isLoading,
+                    isMyCharacters,
                 }
-
             }
         }).mount('#app')
 </script>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Wrappers\ControllerWrapper;
 use App\Interfaces\Services\CharacterServiceInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CharacterController extends Controller
 {
@@ -23,6 +24,20 @@ class CharacterController extends Controller
             return [
                 "message" => "Lista de personajes",
                 "data" => $characters,
+            ];
+        });
+    }
+
+    public function store(Request $request): array|JsonResponse
+    {
+        return ControllerWrapper::execWithJsonSuccessResponse(function () use ($request) {
+            (new CharacterControllerValidateRules())
+                ->validateStoreRequest($request);
+
+            $this->characterService->store($request);
+
+            return [
+                "message" => "Tus personajes han sido guardados con éxito",
             ];
         });
     }
