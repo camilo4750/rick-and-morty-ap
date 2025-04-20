@@ -41,4 +41,18 @@ class CharacterController extends Controller
             ];
         });
     }
+
+    public function update(Request $request): array|JsonResponse
+    {
+        return ControllerWrapper::execWithJsonSuccessResponse(function () use ($request) {
+            (new CharacterControllerValidateRules())
+                ->validateUpdateRequest($request);
+
+            $character = $this->characterService->update($request);
+            return [
+                "message" => "Personaje Actualizado",
+                "data" => $character,
+            ];
+        });
+    }
 }

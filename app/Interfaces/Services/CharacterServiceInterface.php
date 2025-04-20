@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 interface CharacterServiceInterface 
 {
-    public function getAll();
-    public function store(Request $request);
+    public function getAll(): array;
+    public function store(Request $request): void;
+    public function update(Request $request);
+    
 }

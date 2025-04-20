@@ -16,7 +16,7 @@ class CharacterControllerValidateRules
             'characters.*.type' => ['string'],
             'characters.*.gender' => ['required', 'string'],
             'characters.*.image' => ['required', 'string'],
-            
+
             'characters.*.origin' => ['required', 'array'],
             'characters.*.origin.name' => ['required', 'string'],
             'characters.*.origin.url' => ['required', 'string'],
@@ -24,6 +24,18 @@ class CharacterControllerValidateRules
             'characters.*.location' => ['required', 'array'],
             'characters.*.location.name' => ['required', 'string'],
             'characters.*.location.url' => ['required', 'string'],
+        ];
+    }
+
+    public function validateUpdateRequest(Request $request)
+    {
+        $rules = [
+            'id' => ['required', 'integer', 'exists:characters,id'],
+            'name' => ['required', 'string'],
+            'status' => ['required', 'string'],
+            'species' => ['required', 'string'],
+            'type' => ['nullable', 'string'],
+            'gender' => ['required', 'string'],
         ];
     }
 }
