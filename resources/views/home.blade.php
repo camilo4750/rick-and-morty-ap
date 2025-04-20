@@ -17,6 +17,15 @@
     </nav>
     <div class="container">
         <div class="row" v-if="characters.length > 0">
+            <div class="col-12 mt-3">
+                <h2 class="text-center">Personajes</h2>
+            </div>
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center rounded-3 bg-light p-3 mt-3 shadow">
+                    <p class="fw-semibold">Quieres obtener y modificar 100 personajes</p>
+                    <button class="btn btn-success" @click="getCharactersToStore()">Si, guardar</button>
+                </div>
+            </div>
             <div class="col-12 col-md-6 col-lg-4 col-xxl-3" v-for="character in characters" :key="character.id">
                 <div class="card shadow mt-3 mx-auto" style="height: 460px;">
                     <img :src="character.image" class="card-img-top" :alt="character.name">
@@ -114,6 +123,7 @@
             </div>
         </div>
     </div>
+  
 </div>
 
 @endsection
@@ -132,7 +142,7 @@
                 })
                 const character = ref(null)
 
-                const getCharacters = async () => {
+                const getCharactersApi = async () => {
                     try {
                         const response = await fetch(`https://rickandmortyapi.com/api/character?page=${paginate.currentPage}`)
                         if (!response.ok) {
@@ -141,6 +151,32 @@
                         const data = await response.json()
                         characters.value = data.results
                         paginate.total = data.info.count
+                    } catch (err) {
+                       console.error('Error al obtener personajes:', err)
+                    }
+                }
+
+                const getCharacters = async () =>
+                {
+                    try {
+                        const response = await fetch('{{route('Character.getAll')}}', {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json",
+                            },
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Fallo en la petición')
+                        }
+
+                        const data = await response.json()
+                        if(data.data.length === 0){
+                            getCharactersApi()
+                        }
+                        characters.value = data.data
+                        paginate.total = data.data.length
                     } catch (err) {
                        console.error('Error al obtener personajes:', err)
                     }
@@ -159,6 +195,7 @@
                 }
 
                 const getCharacter = async (id) => {
+                    character.value = null
                     try {
                         const response = await fetch(`https://rickandmortyapi.com/api/character/${id}`)
                         if (!response.ok) {
@@ -171,7 +208,7 @@
                         console.error('Error al obtener personaje', error)
                     }
                 }
-                
+  
                 onMounted(() => {
                     getCharacters()
                 })
