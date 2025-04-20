@@ -43,7 +43,7 @@
                             <p>Especie: @{{ character.species }}</p>
                         </div>
                         <button class="btn btn-sm btn-primary  mt-auto align-self-end" type="button"
-                            @click="getCharacter(character.id)" data-bs-toggle="offcanvas"
+                            @click="getCharacterById(character.id)" data-bs-toggle="offcanvas"
                             data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">
                             Ver mas detalles
                             <i class="fa-solid fa-eye ms-2"></i>
@@ -87,7 +87,7 @@
                     <img :src="character.image" class="img-fluid w-100" :alt="character.name">
                     <h2 class="my-2 text-center">@{{ character.name }}</h2>
                 </div>
-                <div class="">
+                <div v-if="!isMyCharacters">
                     <table class="table table-striped table-hover">
                         <tr>
                             <th scope="row">Estado:</th>
@@ -115,6 +115,68 @@
                         </tr>
                     </table>
                 </div>
+                <div v-else>
+                    <form @submit.prevent="UpdateCharacter">
+                        <table class="table table-striped table-hover">
+                            <tr>
+                                <th scope="row">Estado:</th>
+                                <td>
+                                    <select name="" id="" v-model="character.status" class="form-select form-select-sm"
+                                        aria-label="status">
+                                        <option value="Alive">Alive</option>
+                                        <option value="Dead">Dead</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Especie:</th>
+                                <td>
+                                    <select name="" id="" v-model="character.species" class="form-select form-select-sm"
+                                        aria-label="species">
+                                        <option value="Human">Human</option>
+                                        <option value="Alien">Alien</option>
+                                        <option value="Mythological Creature">Mythological Creature</option>
+                                        <option value="Humanoid">Humanoid</option>
+                                        <option value="Robot">Robot</option>
+                                        <option value="Cronenberg">Cronenberg</option>
+                                        <option value="Disease">Disease</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">tipo:</th>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm" v-model="character.type"
+                                        placeholder="tipo" aria-label="tipo">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">genero:</th>
+                                <td>
+                                    <select name="" id="" class="form-select form-select-sm" v-model="character.gender">
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="unknown">unknown</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">origen:</th>
+                                <td><a :href="character?.origin?.url ">@{{ character?.origin?.name }}</a></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">ubicación:</th>
+                                <td><a :href="character?.location?.url">@{{ character?.location?.name }}</a></td>
+                            </tr>
+                            </tr>
+                        </table>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-info" type="submit">
+                                Editar personaje
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
             <div v-else class="d-flex justify-content-center">
                 <div class="spinner-border" role="status">
@@ -131,12 +193,11 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @section('js')
 <script>
-    const { createApp, ref, reactive, onMounted, computed } = Vue
+    const { createApp, ref, reactive, onMounted, } = Vue
 
         createApp({
             setup() {
@@ -207,19 +268,9 @@
                     }
                 }
 
-                const getCharacter = async (id) => {
+                function getCharacterById(id) {
                     character.value = null
-                    try {
-                        const response = await fetch(`https://rickandmortyapi.com/api/character/${id}`)
-                        if (!response.ok) {
-                            throw new Error('Fallo en la petición')
-                        }
-                        const data = await response.json()
-                        character.value = data
-                     
-                    } catch (error) {
-                        console.error('Error al obtener personaje', error)
-                    }
+                    character.value = characters.value.find(character => character.id === id)
                 }
 
                 const getOneHundredCharacters = async () => {
@@ -277,6 +328,48 @@
                         isLoading.value = false
                     }
                 }
+
+                const UpdateCharacter = async () => {
+                    try {
+                        isLoading.value = true
+                        const response = await fetch('{{route('Character.update')}}', {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            },
+                            body: JSON.stringify({
+                                character: character.value,
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Fallo en la petición')
+                        }
+
+                        const data = await response.json()
+
+                        await getCharacters()
+
+                        const offcanvasElement = document.getElementById('staticBackdrop');
+                        const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement) 
+                        offcanvasInstance.hide();
+
+                        Toastify({
+                            text: data.message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#10b981",
+                        }).showToast()
+
+                    } catch (err) {
+                       console.error('Error al obtener personajes:', err)
+                    } finally {
+                        isLoading.value = false
+                    }
+                }
   
                 onMounted(() => {
                     getCharacters()
@@ -284,7 +377,7 @@
                 
                 return {
                     characters,
-                    getCharacter,
+                    getCharacterById,
                     character,
                     nextPage,
                     prevPage,
@@ -292,6 +385,7 @@
                     getOneHundredCharacters,
                     isLoading,
                     isMyCharacters,
+                    UpdateCharacter,
                 }
             }
         }).mount('#app')
