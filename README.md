@@ -30,7 +30,7 @@ Se usa una Base de Datos Postgres con la cual se realiza la consulta y persisten
 - Se definieron contenedores separados para los servicios clave: PHP (Laravel), PostgreSQL (Base de datos), Nginx o Apache (Servidor web)
 
 ```plaintext
-Fast-commerce/
+rick-and-morty-api/
 │
 ├── app/
 │   ├── Dto/                     # Objetos de transferencia de datos (Data Transfer Objects)
@@ -60,7 +60,7 @@ Fast-commerce/
 - puerto http://localhost:8082/
 
 ```plaintext
-Fast-commerce/
+rick-and-morty-api/
 │
 ├── resources/
 │   ├── views/ 
