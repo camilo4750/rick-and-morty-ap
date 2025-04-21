@@ -47,12 +47,6 @@ rick-and-morty-api/
 │
 ├── routes/
 │    ├── App/                    # Rutas de la aplicacion
-│
-├── tests/
-│    ├── Feature/                 # Pruebas funcionales
-│    ├── Integration/             # Pruebas de integración
-│    │   ├── Repositories/        # Pruebas específicas de Repositorios
-│    │   └── Services/            # Pruebas específicas de Servicios
 ```
 
 # FrontEnd
