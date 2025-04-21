@@ -20,7 +20,7 @@ Aplicación que contiene el BackEnd y FrontEnd de Rick and Morty
 
 # BD
 
-Se usa una Base de Datos Postgres con la cual se realiza la consulta y persistencia de datos.
+Se usa una Base de Datos Postgres con la cual se realiza la consulta y persistencia de datos. ports - 5435:5432
 
 # Arquitectura BackEnd
 
