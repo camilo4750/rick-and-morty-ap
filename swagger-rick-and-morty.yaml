@@ -1,0 +1,212 @@
+openapi: 3.0.4
+info:
+  title: Aplicación Rick and Morty
+  description: Rutas para manejar informacion de la base de datos
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8082/
+    description: Servidor principal entorno de desarrollo
+
+paths:
+  /getAll:
+     get:
+      summary: Obtener personajes
+      description: Retorna la lista de personajes.
+      operationId: getAll
+      tags:
+        - Personajes
+      responses:
+        '200':
+          description: Informacion del cliente
+          content:
+             application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: Rick Sanchez
+                    status:
+                      type: string
+                      example: Alive
+                    species:
+                      type: string
+                      example: Human
+                    type:
+                      type: string
+                      nullable: true
+                      example: null
+                    gender:
+                      type: string
+                      example: Male
+                    image:
+                      type: string
+                      format: uri
+                      example: https://rickandmortyapi.com/api/character/avatar/1.jpeg
+                    origin:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: Earth (C-137)
+                        url:
+                          type: string
+                          format: uri
+                          example: https://rickandmortyapi.com/api/location/1
+                    location:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: Citadel of Ricks
+                        url:
+                          type: string
+                          format: uri
+                          example: https://rickandmortyapi.com/api/location/3
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: 2025-04-20 23:23:16
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: null
+        '404':
+          description: No se encontraron personajes.
+
+  /store:
+    post:
+      summary: Crear una lista de personajes
+      description: Almacena múltiples personajes en la base de datos.
+      operationId: store
+      tags:
+        - Personajes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - name
+                  - status
+                  - species
+                  - gender
+                  - image
+                  - origin
+                  - location
+                properties:
+                  name:
+                    type: string
+                    example: Rick Sanchez
+                  status:
+                    type: string
+                    example: Alive
+                  species:
+                    type: string
+                    example: Human
+                  type:
+                    type: string
+                    nullable: true
+                    example: Scientist
+                  gender:
+                    type: string
+                    example: Male
+                  image:
+                    type: string
+                    format: uri
+                    example: https://rickandmortyapi.com/api/character/avatar/1.jpeg
+                  origin:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: Earth (C-137)
+                      url:
+                        type: string
+                        format: uri
+                        example: https://rickandmortyapi.com/api/location/1
+                  location:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: Citadel of Ricks
+                      url:
+                        type: string
+                        format: uri
+                        example: https://rickandmortyapi.com/api/location/3
+      responses:
+        '200':
+          description: Personajes creados con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Tus personajes han sido guardados con éxito
+        '400':
+          description: Error en los datos enviados
+
+
+  /update:
+    put:
+      summary: Actualizar un personaje
+      description: Actualiza ciertos campos de un personaje existente en la base de datos.
+      operationId: update
+      tags:
+        - Personajes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - status
+                - species
+                - gender
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                status:
+                  type: string
+                  example: Alive
+                species:
+                  type: string
+                  example: Human
+                type:
+                  type: string
+                  nullable: true
+                  example: Scientist
+                gender:
+                  type: string
+                  example: Male
+      responses:
+        '200':
+          description: Personaje actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Personaje Actualizado
+        '404':
+          description: Personaje no encontrado
+        '400':
+          description: Datos inválidos
